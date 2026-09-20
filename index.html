@@ -1,0 +1,1431 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Le portfolio de Charlie</title>
+
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/png" href="./img/favicon.png" />
+
+    <!-- Howler.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+  </head>
+  <body>
+    <!-- La Gameboy  -->
+    <div class="conteneurGameboy">
+      <div class="zoneEcran">
+        <div class="texteGameboyColor">
+          <span class="partieGameboy">GAME BOY </span>
+          <span class="partieColor">
+            <span>C</span><span>O</span><span>L</span><span>O</span
+            ><span>R</span>
+          </span>
+        </div>
+        <div class="indicateurPower">
+          <div class="ledPower"></div>
+          <div class="iconesBatterie">
+            <div class="iconeBatterie"></div>
+            <div class="iconeBatterie"></div>
+            <div class="iconeBatterie"></div>
+          </div>
+          <span class="textePower">POWER</span>
+        </div>
+
+        <div class="ecran">
+          <div class="ecranNoir"></div>
+          <div class="hintPower" id="hintPower">
+            <span class="hintPower-texte">
+              Appuie sur <strong>POWER</strong><br />
+              pour allumer la console
+            </span>
+          </div>
+          <video id="introVideo" class="intro-video" muted playsinline autoplay>
+            <source src="./videos/introGameboyAdvance.mp4" type="video/mp4" />
+            <!-- Fallback si pas de vidéo -->
+            Votre navigateur ne supporte pas la vidéo.
+          </video>
+          <div class="conteneurCanvas">
+            <canvas id="canvasJeu"></canvas>
+
+            <!-- Menu hamburger -->
+            <div id="hamburger">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path fill="white" d="M3 6h18v2H3zM3 11h18v2H3zM3 16h18v2H3z" />
+              </svg>
+            </div>
+
+            <!-- ========================================
+               MENU DÉROULANT
+               ======================================== -->
+            <div id="menu">
+              <h2>Menu</h2>
+
+              <!-- Section Commandes -->
+              <div class="menu-section">
+                <h3>Commandes</h3>
+                <ul>
+                  <li>Z : Haut</li>
+                  <li>S : Bas</li>
+                  <li>Q : Gauche</li>
+                  <li>D : Droite</li>
+                  <li>A : Interagir</li>
+                </ul>
+              </div>
+
+              <!-- Boutons du menu -->
+              <div class="menu-button">
+                <button id="demarrageButton">Retour a <br />l'Accueil</button>
+                <button id="closeMenu">Fermer le Menu</button>
+              </div>
+            </div>
+
+            <!-- Conteneur des cœurs -->
+            <div class="health-container">
+              <div class="heart-hud">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <path
+                    d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                  />
+                </svg>
+              </div>
+              <div class="heart-hud">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <path
+                    d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                  />
+                </svg>
+              </div>
+              <div class="heart-hud">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <path
+                    d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                  />
+                </svg>
+              </div>
+            </div>
+            <div class="inventaire">
+              <div class="inventaire-item hidden" data-item="cle">
+                <img src="img/key.png" alt="Clé" class="inventaire-img" />
+              </div>
+              <div class="inventaire-item hidden" data-item="parchemin">
+                <img
+                  src="img/parchemin.png"
+                  alt="Parchemin"
+                  class="inventaire-img"
+                />
+              </div>
+            </div>
+
+            <!-- ========================================
+                OVERLAY SIMPLE (OBJETS : coffre, clé, parchemin)
+                Fond transparent, jeu visible en arrière-plan
+                ======================================== -->
+            <div id="simple-overlay" class="simple-overlay hidden">
+              <div class="simple-box">
+                <p id="simple-message" class="simple-message"></p>
+                <button id="readMotivationLetter" class="simple-btn hidden">
+                  (B) Consulter la fiche
+                </button>
+                <button id="simple-close-btn" class="simple-btn">
+                  Appuyez ici
+                </button>
+              </div>
+            </div>
+
+            <!-- ========================================
+                OVERLAY DIALOGUE (PERSONNAGES : lapin, papi)
+                Fond transparent, bulle avec nom du personnage
+                ======================================== -->
+            <div id="dialogue-overlay" class="dialogue-overlay hidden">
+              <div class="dialogue-box">
+                <!-- En-tête : Nom + Icône -->
+                <div class="dialogue-header">
+                  <div id="dialogue-icon" class="dialogue-icon"></div>
+                  <h3 id="dialogue-name" class="dialogue-name">Personnage</h3>
+                </div>
+
+                <!-- Message principal -->
+                <div class="dialogue-content">
+                  <p id="dialogue-message" class="dialogue-message"></p>
+                </div>
+
+                <!-- Bouton en bas -->
+                <div class="dialogue-footer">
+                  <button id="dialogue-close-btn" class="dialogue-btn">
+                    <span class="btn-key"></span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Overlay À Propos optimisé -->
+            <div id="apropos-overlay" class="apropos-overlay hidden">
+              <div class="apropos-container">
+                <div class="apropos-header">
+                  <h1>À PROPOS</h1>
+                  <p>Développeur Web Full-Stack Junior</p>
+                </div>
+
+                <div class="apropos-content">
+                  <!-- Profil -->
+                  <section>
+                    <h2>Mon Parcours</h2>
+                    <p>
+                      Après le bâtiment puis l'usine, j'ai voulu me reconvertir.
+                      J'ai regardé plusieurs pistes dans l'informatique avant de
+                      choisir le développement web et logiciel : c'est là que je
+                      peux créer mes propres idées et comprendre comment les
+                      choses fonctionnent. Je l'ai découvert à une époque où
+                      l'IA était déjà là, et j'aime ce qu'est ce métier et ce
+                      qu'il devient, créer des choses, avec ou sans IA, c'est ce
+                      sur quoi je passe mon temps.
+                    </p>
+                    <p>
+                      Je ne suis pas forcément un crack qui code depuis tout
+                      petit. Mais j'ai <strong>l'envie d'apprendre</strong> et
+                      j'apprends de tout le monde, expérimentés ou pas. Ce que
+                      je veux, c'est montrer qu'on peut me laisser
+                      <strong>prendre des responsabilités</strong> et
+                      <strong>me faire confiance</strong>.
+                    </p>
+                    <p>
+                      En moins de dix mois, je suis passé de zéro ligne de code
+                      à construire une application complète. Il me reste plein
+                      de choses à apprendre que ce soit le déploiement, le
+                      cloud, l'IA dans de vrais produits. C'est justement ce que
+                      je viens chercher. Dix mois m'ont amené jusqu'ici, alors
+                      sur deux ans, j'ai hâte de voir où j'en serai et de
+                      continuer à progresser.
+                    </p>
+                    <p>
+                      Formation TP Développeur Web &amp; Web Mobile chez Real
+                      Conseil à Lille, financée par la Région Hauts-de-France,
+                      dont je suis aujourd'hui <strong>diplômé</strong>. Je
+                      poursuis vers le titre
+                      <strong>Concepteur Développeur d'Applications</strong>
+                      (Bac+3) avec <strong>ForEach Academy</strong>, et je
+                      cherche une
+                      <strong
+                        >alternance de deux ans à démarrer dès que
+                        possible</strong
+                      >.
+                    </p>
+                  </section>
+
+                  <!-- Stack technique -->
+                  <section>
+                    <h2>Stack Technique</h2>
+                    <p>
+                      Au cours de ma formation et après avoir pesé le pour et le
+                      contre, j'ai choisi de me concentrer sur des technologies
+                      cohérentes plutôt que de me disperser. Ma curiosité et ma
+                      capacité d'adaptation me permettent néanmoins de m'ajuster
+                      à d'autres technologies selon les besoins d'un projet.
+                    </p>
+
+                    <h3>Front-end :</h3>
+                    <ul class="skills-list">
+                      <li>
+                        <img src="img/html-logo.png" alt="HTML5" />
+                        <img src="img/css-logo.png" alt="CSS3" /> HTML5 / CSS3
+                      </li>
+                      <li>
+                        <img
+                          src="img/tailwind CSS-logo.jpeg"
+                          alt="Tailwind CSS"
+                        />
+                        Tailwind CSS sans exclure le CSS natif pour les
+                        animations et détails spécifiques
+                      </li>
+                      <li>
+                        <img src="img/javascript-logo.png" alt="JavaScript" />
+                        JavaScript / TypeScript
+                      </li>
+                      <li>
+                        <img src="img/angular-logo.png" alt="Angular" />
+                        Angular
+                      </li>
+                      <li>
+                        <img src="img/responsive-logo.png" alt="Responsive" />
+                        Responsive Design
+                      </li>
+                    </ul>
+
+                    <h3>Back-end :</h3>
+                    <ul class="skills-list">
+                      <li>
+                        <img src="img/nodejs-logo.svg" alt="Node.js" />
+                        Node.js / Express - mon terrain principal côté serveur
+                      </li>
+                      <li>
+                        <img src="img/nestjs-logo.webp" alt="NestJS" /> NestJS -
+                        pour structurer mes API, c'est ma prochaine étape côté
+                        back
+                      </li>
+                      <li>
+                        <img src="img/mysql-logo.png" alt="MySQL" /> MySQL /
+                        PostgreSQL
+                      </li>
+                      <li><img src="img/rest api.png" alt="API" /> API REST</li>
+                    </ul>
+
+                    <h3>Outils :</h3>
+                    <ul class="skills-list">
+                      <li>
+                        <img src="img/github.png" alt="Git" /> Git / GitHub
+                      </li>
+                    </ul>
+                  </section>
+
+                  <!-- Objectifs alternance -->
+                  <section>
+                    <h2>Objectifs en Alternance</h2>
+                    <p>
+                      Je recherche une entreprise dans laquelle je pourrai
+                      m'investir pleinement et contribuer à des projets
+                      concrets. Pour l'instant, mon objectif n'est pas de tout
+                      maîtriser d'un coup, mais de
+                      <strong>progresser chaque jour</strong>. Progresser sur
+                      les langages bien sûr, mais pas seulement : je veux
+                      apprendre à bien
+                      <strong>concevoir et structurer un projet</strong>, à
+                      <strong>refactoriser et débuguer</strong> avec méthode, à
+                      utiliser
+                      <strong>l'IA comme un vrai outil de travail</strong> sans
+                      en devenir dépendant, et surtout à développer les
+                      <strong>bons réflexes et les bonnes habitudes</strong> qui
+                      font la différence sur la durée.
+                    </p>
+                    <ul class="skills-list">
+                      <li>
+                        Développer des fonctionnalités front-end et back-end
+                      </li>
+                      <li>Écrire un code propre, lisible et maintenable</li>
+                      <li>
+                        Apprendre à bien architecturer, refactoriser et débuguer
+                      </li>
+                      <li>
+                        Utiliser l'IA de manière réfléchie dans mon workflow
+                      </li>
+                      <li>
+                        Travailler en équipe avec Git et des méthodologies
+                        agiles
+                      </li>
+                      <li>
+                        Me familiariser avec les bonnes pratiques DevOps (CI/CD,
+                        conteneurisation)
+                      </li>
+                    </ul>
+                    <p>
+                      <strong>Projet fil rouge :</strong> CinéFeel, un moteur de
+                      recommandation de films piloté par l'humeur : on décrit
+                      son envie en une phrase, l'application répond par une
+                      sélection argumentée. Stack : Angular, NestJS, PostgreSQL
+                      et Python.
+                    </p>
+                  </section>
+
+                  <!-- Vision long terme -->
+                  <section>
+                    <h2>Vision Professionnelle</h2>
+                    <p>
+                      Beaucoup de sujets m'attirent : l'intégration de
+                      <strong>l'IA dans les produits</strong> (RAG), le
+                      <strong>MCP</strong>, <strong>Docker et le cloud</strong>,
+                      la <strong>sécurité</strong>. Je pourrais en faire un plan
+                      de carrière, mais ce serait malhonnête : je n'ai pas
+                      encore le recul nécessaire pour affirmer où je veux me
+                      spécialiser.
+                    </p>
+                    <p>
+                      Ce que je sais, c'est comment je compte le découvrir :
+                      travailler, construire, et laisser la spécialisation venir
+                      de ce que j'aurai réellement pratiqué. Je préfère choisir
+                      une direction parce que je l'ai éprouvée, pas parce
+                      qu'elle sonne bien.
+                    </p>
+                  </section>
+                </div>
+
+                <div class="apropos-footer">
+                  <button id="apropos-close-btn" class="apropos-btn">
+                    Retour
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Overlay Fiche de Personnage (parchemin) -->
+            <div id="fiche-overlay" class="apropos-overlay hidden">
+              <div class="apropos-container">
+                <div class="apropos-header">
+                  <h1>FICHE DE PERSONNAGE</h1>
+                  <p>Charlie Wanlin</p>
+                </div>
+
+                <div class="apropos-content">
+                  <!-- Identité -->
+                  <section>
+                    <div class="fiche-identite">
+                      <div class="fiche-portrait">
+                        <img
+                          src="img/avatar.png"
+                          alt="Charlie Wanlin"
+                          onerror="
+                            this.parentElement.classList.add(
+                              'fiche-portrait--vide',
+                            );
+                            this.remove();
+                          "
+                        />
+                      </div>
+                      <ul class="fiche-stats">
+                        <li>
+                          <span class="fiche-label">Classe</span>
+                          <span class="fiche-valeur"
+                            >Développeur Full-Stack</span
+                          >
+                        </li>
+                        <li>
+                          <span class="fiche-label">Niveau</span>
+                          <span class="fiche-valeur"
+                            >Diplômé TP Développeur Web &amp; Web Mobile</span
+                          >
+                        </li>
+                        <li>
+                          <span class="fiche-label">Quête en cours</span>
+                          <span class="fiche-valeur"
+                            >Concepteur Développeur d'Applications (Bac+3)</span
+                          >
+                        </li>
+                        <li>
+                          <span class="fiche-label">Guilde</span>
+                          <span class="fiche-valeur">ForEach Academy</span>
+                        </li>
+                        <li>
+                          <span class="fiche-label">Région</span>
+                          <span class="fiche-valeur"
+                            >Lille - Hauts-de-France / Paris -
+                            Île-de-France</span
+                          >
+                        </li>
+                      </ul>
+                    </div>
+                  </section>
+
+                  <!-- Compétences -->
+                  <section>
+                    <h2>Compétences</h2>
+                    <p class="fiche-note">
+                      Full-stack : je veux pouvoir emmener une application de la
+                      base de données jusqu'à l'écran, parce que comprendre
+                      toute la chaîne change la façon dont on code chaque
+                      morceau.
+                    </p>
+
+                    <h3 class="niveau-titre">Ce que j'utilise au quotidien</h3>
+                    <ul class="fiche-competences">
+                      <li>
+                        <span class="comp-nom">JavaScript / TypeScript</span>
+                        <span class="comp-detail"
+                          >La base de tout le reste. TypeScript pratiqué tous
+                          les jours pendant mon stage, et c'est devenu mon
+                          réflexe.</span
+                        >
+                      </li>
+                      <li>
+                        <span class="comp-nom">Angular</span>
+                        <span class="comp-detail"
+                          >Mon framework principal depuis mon stage :
+                          composants, routing, services, formulaires. Je
+                          l'utilise dès que je code et je continue d'en
+                          apprendre les rouages.</span
+                        >
+                      </li>
+                      <li>
+                        <span class="comp-nom">Tailwind CSS / CSS natif</span>
+                        <span class="comp-detail"
+                          >Tailwind par défaut pour aller vite et rester
+                          cohérent, CSS natif dès qu'un projet le demande ou
+                          qu'une animation sort du cadre.</span
+                        >
+                      </li>
+                      <li>
+                        <span class="comp-nom">Node.js / Express</span>
+                        <span class="comp-detail"
+                          >Node comme runtime, Express pour exposer une API REST
+                          : routes, middlewares, accès base de données, gestion
+                          d'erreurs.</span
+                        >
+                      </li>
+                      <li>
+                        <span class="comp-nom">Git / GitHub</span>
+                        <span class="comp-detail"
+                          >Branches, merges, résolution de conflits, pull
+                          requests.</span
+                        >
+                      </li>
+                    </ul>
+
+                    <h3 class="niveau-titre">
+                      Ce que je pratique et continue d'approfondir
+                    </h3>
+                    <ul class="fiche-competences">
+                      <li>
+                        <span class="comp-nom">Tests unitaires et E2E</span>
+                        <span class="comp-detail"
+                          >Vitest pour les tests unitaires, Playwright pour les
+                          parcours de bout en bout. Abordés en stage, je
+                          continue d'en écrire.</span
+                        >
+                      </li>
+                      <li>
+                        <span class="comp-nom">TanStack Query &amp; MSW</span>
+                        <span class="comp-detail"
+                          >Gestion du cache et des états de requête côté client,
+                          et mock d'API avec Mock Service Worker pour développer
+                          le front sans attendre le back. Découverts en
+                          stage.</span
+                        >
+                      </li>
+                      <li>
+                        <span class="comp-nom">SQL / PostgreSQL</span>
+                        <span class="comp-detail"
+                          >Modélisation, jointures, requêtes courantes via un
+                          mapping maison et plus tard avec un ORM.
+                          L'optimisation fine, j'apprends encore.</span
+                        >
+                      </li>
+                    </ul>
+
+                    <h3 class="niveau-titre">Ce que je vais apprendre</h3>
+                    <ul class="fiche-competences">
+                      <li>
+                        <span class="comp-nom">NestJS</span>
+                        <span class="comp-detail"
+                          >Pas encore commencé, et je compte le prendre de A à Z
+                          : modules, injection de dépendances, architecture en
+                          couches. Objectif : structurer mes API au lieu de tout
+                          empiler dans un fichier de routes.</span
+                        >
+                      </li>
+                      <li>
+                        <span class="comp-nom">Python - IA &amp; RAG</span>
+                        <span class="comp-detail"
+                          >Embeddings, recherche sémantique et RAG : le sujet
+                          qui m'intéresse le plus en ce moment, que je veux
+                          construire pour de bon sur CinéFeel.</span
+                        >
+                      </li>
+                      <li>
+                        <span class="comp-nom">MCP</span>
+                        <span class="comp-detail"
+                          >Connecter un modèle à de vrais outils et à mes
+                          propres données, au lieu de me limiter à des appels
+                          isolés.</span
+                        >
+                      </li>
+                      <li>
+                        <span class="comp-nom">Docker &amp; déploiement</span>
+                        <span class="comp-detail"
+                          >Savoir livrer un projet en production, et pas
+                          seulement le faire tourner en local : c'est le manque
+                          que je veux combler en premier.</span
+                        >
+                      </li>
+                    </ul>
+
+                    <p class="fiche-deja">
+                      <span class="deja-label">Déjà pratiqué</span>
+                      <strong>PHP</strong> - utilisé en formation puis sur un
+                      CRM pour studio de tatouage pour mon examen final. Je sais
+                      m'y remettre si le projet l'exige, mais je développe
+                      aujourd'hui côté serveur en Node.js / Express.
+                    </p>
+                  </section>
+
+                  <!-- Position sur l'IA -->
+                  <section>
+                    <h2>Ma vision de l'IA</h2>
+                    <div class="fiche-vision">
+                      <p>
+                        L'IA est un <strong>outil de travail</strong>, au même
+                        titre qu'un débogueur ou qu'un gestionnaire de versions.
+                        Un outil qu'on apprend à manier, qu'on garde sous
+                        contrôle et dont on ne devient pas dépendant.
+                      </p>
+                    </div>
+
+                    <h3 class="niveau-titre">Comment je m'en sers</h3>
+                    <ul class="fiche-competences">
+                      <li>
+                        <span class="comp-nom">Comme un gain de temps</span>
+                        <span class="comp-detail"
+                          >Sur le répétitif, le boilerplate, la mise en forme :
+                          tout ce qui n'apporte rien à réécrire à la main pour
+                          la dixième fois.</span
+                        >
+                      </li>
+                      <li>
+                        <span class="comp-nom"
+                          >Comme un outil d'apprentissage</span
+                        >
+                        <span class="comp-detail"
+                          >Pour faire expliquer un concept autrement, comparer
+                          deux approches ou comprendre pourquoi une solution est
+                          meilleure qu'une autre.</span
+                        >
+                      </li>
+                      <li>
+                        <span class="comp-nom"
+                          >Comme une première relecture</span
+                        >
+                        <span class="comp-detail"
+                          >Je lui fais passer mon code avant d'ouvrir une pull
+                          request. Elle attrape les oublis évidents ; la vraie
+                          review reste celle de l'équipe, et c'est celle qui
+                          compte.</span
+                        >
+                      </li>
+                      <li>
+                        <span class="comp-nom">Avec de vrais prompts</span>
+                        <span class="comp-detail"
+                          >Donner le contexte, les contraintes et le résultat
+                          attendu. Un prompt travaillé change tout : c'est une
+                          compétence en soi, pas une formule magique.</span
+                        >
+                      </li>
+                    </ul>
+
+                    <h3 class="niveau-titre">Mes garde-fous</h3>
+                    <ul class="fiche-competences">
+                      <li>
+                        <span class="comp-nom">La doc officielle d'abord</span>
+                        <span class="comp-detail"
+                          >Je commence par la documentation de référence, et
+                          j'utilise l'IA en complément. L'inverse mène à du code
+                          qui ressemble à la bonne solution sans en être
+                          une.</span
+                        >
+                      </li>
+                      <li>
+                        <span class="comp-nom"
+                          >Ne pas tomber dans la boucle</span
+                        >
+                        <span class="comp-detail"
+                          >Enchaîner les prompts sur un problème qu'on n'a pas
+                          compris fait perdre plus de temps qu'il n'en fait
+                          gagner. Quand ça tourne en rond, je reprends à la
+                          main.</span
+                        >
+                      </li>
+                      <li>
+                        <span class="comp-nom">Comprendre ce que je garde</span>
+                        <span class="comp-detail"
+                          >Je dois pouvoir relire, corriger et justifier chaque
+                          ligne. Si je ne sais pas l'expliquer, elle ne va pas
+                          dans le projet.</span
+                        >
+                      </li>
+                    </ul>
+
+                    <p class="fiche-chute">
+                      C'est moi qui la contrôle, pas l'inverse.
+                    </p>
+                  </section>
+
+                  <!-- Contrat de quête -->
+                  <section>
+                    <h2>Contrat de quête</h2>
+
+                    <div class="fiche-contrat">
+                      <div class="contrat-colonne">
+                        <h3>Ce que je cherche</h3>
+                        <ul class="skills-list">
+                          <li>
+                            Une alternance
+                            <strong>Bac+3 CDA sur deux ans</strong>
+                            avec ForEach Academy
+                          </li>
+                          <li>
+                            Un démarrage <strong>dès que possible</strong>
+                          </li>
+                          <li>
+                            Une équipe où l'on
+                            <strong>relit le code des autres</strong>
+                          </li>
+                          <li>
+                            Des projets
+                            <strong>qui partent en production</strong>
+                          </li>
+                          <li>
+                            Secteur Lille - Hauts-de-France / Paris -
+                            Île-de-France
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div class="contrat-colonne">
+                        <h3>Ce que j'apporte</h3>
+                        <ul class="skills-list">
+                          <li>
+                            <strong>Je débloque</strong> : un bug qui résiste ou
+                            une idée encore floue, c'est là que je suis le plus
+                            utile. Je creuse jusqu'à comprendre la cause, pas
+                            jusqu'à ce que ça marche par hasard.
+                          </li>
+                          <li>
+                            <strong>Je ne lâche pas un problème</strong> : quand
+                            un sujet me tient, je continue en dehors des heures.
+                            Pas par sacrifice, parce que je veux la réponse.
+                          </li>
+                          <li>
+                            <strong>Je veux monter en compétences vite</strong>
+                            et le prouver sur des tâches réelles, pas rester
+                            spectateur du projet.
+                          </li>
+                          <li>
+                            <strong>J'apprends en construisant</strong> : chaque
+                            techno que je découvre finit dans un projet, pas
+                            dans une liste.
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <p class="fiche-signature">
+                      <a href="mailto:charliewanlin.pro@gmail.com"
+                        >charliewanlin.pro@gmail.com</a
+                      >
+                      <span class="sep" aria-hidden="true">·</span>
+                      <a
+                        href="https://github.com/charlieWanlin"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        >GitHub</a
+                      >
+                      <span class="sep" aria-hidden="true">·</span>
+                      <a
+                        href="https://www.linkedin.com/in/charliewanlin/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        >LinkedIn</a
+                      >
+                    </p>
+                  </section>
+                </div>
+
+                <div class="apropos-footer">
+                  <button id="fiche-close-btn" class="apropos-btn">
+                    Retour
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Overlay Projets - Journal de quêtes -->
+            <div id="projets-overlay" class="apropos-overlay hidden">
+              <div class="apropos-container">
+                <div class="apropos-header">
+                  <h1>MES PROJETS</h1>
+                  <p>Journal de quêtes</p>
+                </div>
+
+                <div class="apropos-content">
+                  <!-- Quête principale -->
+                  <section>
+                    <h2>Quête principale</h2>
+                    <p class="projet-intro">
+                      Le projet sur lequel je construis mon année.
+                    </p>
+
+                    <article class="projet-card projet-card--phare">
+                      <div class="projet-card-head">
+                        <h3>CinéFeel</h3>
+                        <span class="projet-badge badge-encours"
+                          >Projet CDA - fil rouge</span
+                        >
+                      </div>
+                      <p>
+                        Une médiathèque personnelle pour cinéphiles : on y range
+                        ses films, on les organise en playlists, et
+                        l'application propose des recommandations générées par
+                        IA à partir de ce qu'on y a déjà mis. Là où le streaming
+                        impose ses rayons, CinéFeel rend sa collection à
+                        l'utilisateur.
+                      </p>
+                      <ul class="projet-stack">
+                        <li>Angular</li>
+                        <li>NestJS</li>
+                        <li>PostgreSQL</li>
+                        <li>Python</li>
+                      </ul>
+                      <div class="projet-links">
+                        <a
+                          href="#"
+                          class="projet-link projet-link--soon"
+                          data-placeholder="true"
+                          >Démo à venir</a
+                        >
+                        <a
+                          href="#"
+                          class="projet-link projet-link--soon"
+                          data-placeholder="true"
+                          >Code privé</a
+                        >
+                      </div>
+                    </article>
+                  </section>
+
+                  <!-- La Forge -->
+                  <section>
+                    <h2>La Forge</h2>
+                    <p class="projet-intro">
+                      Des projets complets, pensés pour répondre à un vrai
+                      besoin. Tous ne sont pas finis, et c'est justement ce qui
+                      les rend instructifs.
+                    </p>
+
+                    <article class="projet-card">
+                      <div class="projet-card-head">
+                        <h3>InkDesk Software</h3>
+                        <span class="projet-badge badge-encours">En cours</span>
+                      </div>
+                      <p>
+                        Mon projet de fin de formation DWWM : un CRM pour
+                        studios de tatouage, né d'un besoin réel constaté sur le
+                        terrain. Il gère les clients, les projets, les
+                        rendez-vous, les devis et les factures. Livré en PHP, il
+                        me sert aujourd'hui de terrain de migration : je le
+                        repasse en NestJS pour travailler une architecture en
+                        couches, avant d'y greffer un assistant IA, puis une
+                        commande vocale capable de répondre à partir des données
+                        du studio (RAG). Cette dernière partie, je ne sais pas
+                        encore la construire, c'est précisément pour ça que je
+                        l'ai choisie.
+                      </p>
+                      <ul class="projet-stack">
+                        <li>Angular</li>
+                        <li>PHP → NestJS</li>
+                        <li>SQL</li>
+                        <li>IA / RAG</li>
+                      </ul>
+                      <div class="projet-links">
+                        <a
+                          href="#"
+                          class="projet-link projet-link--soon"
+                          data-placeholder="true"
+                          >Démo sur demande</a
+                        >
+                      </div>
+                    </article>
+
+                    <article class="projet-card">
+                      <div class="projet-card-head">
+                        <h3>Le Clap</h3>
+                        <span class="projet-badge badge-encours"
+                          >Projet CDA - mobile</span
+                        >
+                      </div>
+                      <p>
+                        Une application mobile qui transforme une soirée cinéma
+                        en jeu de société : quiz, défis et mini-jeux autour des
+                        films, des acteurs et des scènes cultes, à jouer en
+                        famille ou entre amis.
+                      </p>
+                      <ul class="projet-stack">
+                        <li>React Native</li>
+                      </ul>
+                      <div class="projet-links">
+                        <a
+                          href="#"
+                          class="projet-link projet-link--soon"
+                          data-placeholder="true"
+                          >Démo à venir</a
+                        >
+                      </div>
+                    </article>
+                  </section>
+
+                  <!-- Entraînements -->
+                  <section>
+                    <h2>Terrain d'entraînement</h2>
+                    <p class="projet-intro">
+                      Exercices, défis et bacs à sable. Moins ambitieux, mais
+                      c'est là que les réflexes se prennent.
+                    </p>
+
+                    <article class="projet-card projet-card--small">
+                      <div class="projet-card-head">
+                        <h3>angular-app-tutorial</h3>
+                        <span class="projet-badge badge-done">Terminé</span>
+                      </div>
+                      <p>
+                        Une même application, une liste d'ECG de patients,
+                        reconstruite à chaque étape de mon apprentissage :
+                        d'abord en JavaScript, puis en TypeScript, puis en
+                        Angular, ensuite branchée sur une API simulée, avant de
+                        passer à TanStack Query, d'être couverte par des tests
+                        unitaires puis end-to-end, et enfin migrée vers une
+                        librairie de composants interne.
+                      </p>
+                      <p>
+                        Le but n'est pas le résultat affiché, c'est de sentir ce
+                        que chaque outil apporte réellement en le rajoutant sur
+                        une base que je connais par cœur.
+                      </p>
+                      <ul class="projet-stack">
+                        <li>TypeScript</li>
+                        <li>Angular</li>
+                        <li>MSW</li>
+                        <li>TanStack Query</li>
+                        <li>Vitest</li>
+                        <li>Playwright</li>
+                      </ul>
+                      <div class="projet-links">
+                        <a
+                          href="#"
+                          class="projet-link projet-link--soon"
+                          data-placeholder="true"
+                          >Code sur demande</a
+                        >
+                      </div>
+                    </article>
+
+                    <article class="projet-card projet-card--small">
+                      <div class="projet-card-head">
+                        <h3>Ce portfolio</h3>
+                        <span class="projet-badge badge-live">En ligne</span>
+                      </div>
+                      <p>
+                        Le jeu auquel tu es en train de jouer. HTML, CSS et
+                        JavaScript natif, sans aucun framework : moteur de rendu
+                        canvas, collisions par tilemap, gestion d'états,
+                        inventaire et audio.
+                      </p>
+                      <div class="projet-links">
+                        <a
+                          href="https://github.com/charlieWanlin/CharliePortfolio"
+                          class="projet-link"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          >Voir le code</a
+                        >
+                      </div>
+                    </article>
+
+                    <article class="projet-card projet-card--small">
+                      <div class="projet-card-head">
+                        <h3>Excuses App</h3>
+                        <span class="projet-badge badge-done"
+                          >Test technique</span
+                        >
+                      </div>
+                      <p>
+                        Générateur d'excuses HTTP humoristiques. Test technique
+                        réalisé pour ForEach Academy.
+                      </p>
+                      <div class="projet-links">
+                        <a
+                          href="https://github.com/charlieWanlin/excuses-app"
+                          class="projet-link"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          >Voir le code</a
+                        >
+                      </div>
+                    </article>
+                  </section>
+                </div>
+
+                <div class="apropos-footer">
+                  <button id="projets-close-btn" class="apropos-btn">
+                    Retour
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Overlay Making Of avec galerie d'images -->
+            <div id="makingof-overlay" class="makingof-overlay hidden">
+              <div class="makingof-container">
+                <div class="makingof-header">
+                  <h1>MAKING OF</h1>
+                  <p>Mon Portfolio Interactif</p>
+                </div>
+
+                <div class="makingof-content">
+                  <section>
+                    <h2>Origine du projet</h2>
+                    <p>
+                      L'idée est née en regardant une vidéo YouTube sur la
+                      création d'un jeu type Pokémon, alors que je débutais ma
+                      formation en développement web. Plutôt que de créer un
+                      portfolio classique, j'ai voulu réaliser quelque chose de
+                      vivant et interactif.
+                    </p>
+                    <p>
+                      Je me suis inspiré de RPG comme Final Fantasy Tactics,
+                      Secret of Mana ou Golden Sun, tant pour le gameplay, le
+                      visuel que le son. Transformer mon portfolio en petit jeu
+                      d'exploration était donc la rencontre entre ma passion
+                      pour le jeu vidéo et mon apprentissage du développement
+                      web.
+                    </p>
+
+                    <!-- Galerie d'images -->
+                    <div class="image-gallery">
+                      <img
+                        src="img/secret-of-mana.jpg"
+                        alt="RPG inspirations"
+                        class="gallery-image"
+                      />
+                      <p class="image-caption">
+                        Inspirations : Final Fantasy Tactics, Secret of Mana
+                      </p>
+                    </div>
+                  </section>
+
+                  <section>
+                    <h2>Objectif du projet</h2>
+                    <ul>
+                      <li>
+                        Créer un univers interactif capable de surprendre et de
+                        divertir, avec quelques clins d'œil à la pop culture
+                        comme Matrix.
+                      </li>
+                      <li>
+                        Présenter mes compétences sérieusement tout en me
+                        différenciant.
+                      </li>
+                      <li>
+                        Travailler sur un projet ambitieux pour mieux comprendre
+                        et appliquer les bases du développement web dans un
+                        contexte concret.
+                      </li>
+                    </ul>
+                  </section>
+
+                  <section>
+                    <h2>Stack technique</h2>
+                    <p>
+                      Le projet a été réalisé en HTML, CSS et JavaScript pur,
+                      sans framework. J'apprécie particulièrement le CSS natif
+                      moderne (variables CSS, nesting, Grid, Flexbox) qui offre
+                      aujourd'hui une puissance et une flexibilité remarquables.
+                      Avant d'adopter Tailwind CSS pour mes prochains projets,
+                      j'ai comparé Bootstrap et préféré Tailwind pour la liberté
+                      et le contrôle qu'il offre sur le CSS, tout en consolidant
+                      mes bases sur les fondamentaux du web.
+                    </p>
+                  </section>
+
+                  <section>
+                    <h2>Stack et réalisations</h2>
+                    <p>
+                      Le jeu est responsive et jouable au clavier, pad ou
+                      tactile.
+                    </p>
+
+                    <h3>PNJ et déplacements</h3>
+                    <ul>
+                      <li>Collisions gérées via JSON.</li>
+                      <li>
+                        Déplacements automatiques des PNJ avec animations par
+                        frames.
+                      </li>
+                      <li>
+                        Objets interactifs (coffres, clés, parchemins)
+                        déclenchent sons et bloquent les déplacements lors des
+                        messages.
+                      </li>
+                    </ul>
+
+                    <!-- Galerie d'images -->
+                    <div class="image-gallery">
+                      <img
+                        src="img/Collision.png"
+                        alt="Map et collisions dans Tiled"
+                        class="gallery-image"
+                      />
+                      <p class="image-caption">
+                        Éditeur de map Tiled avec système de collisions JSON
+                      </p>
+                    </div>
+
+                    <div class="image-gallery">
+                      <img
+                        src="img/player2Down.png"
+                        alt="Spritesheet personnage"
+                        class="gallery-image"
+                      />
+                      <p class="image-caption">
+                        Spritesheet du personnage - animations de déplacement
+                      </p>
+                    </div>
+
+                    <h3>Objets et inventaire</h3>
+                    <ul>
+                      <li>
+                        Items créés dynamiquement et intégrés dans un inventaire
+                        visuel.
+                      </li>
+                      <li>Sons adaptés selon l'état du jeu.</li>
+                      <li>
+                        Sprites découpés pour gérer l'animation frame par frame.
+                      </li>
+                    </ul>
+
+                    <!-- Galerie d'images - 3 items côte à côte -->
+                    <div class="items-gallery">
+                      <div class="item-image">
+                        <img
+                          src="img/inventaire.png"
+                          alt="Système d'inventaire"
+                          class="gallery-image"
+                        />
+                        <p class="image-caption">
+                          Interface de l'inventaire in-game
+                        </p>
+                      </div>
+                      <div class="item-image">
+                        <img
+                          src="img/coffre.png"
+                          alt="Sprites des coffres"
+                          class="gallery-image"
+                        />
+                        <p class="image-caption">Sprite du coffre</p>
+                      </div>
+                      <div class="item-image">
+                        <img
+                          src="img/key.png"
+                          alt="Sprites des clés et parchemins"
+                          class="gallery-image"
+                        />
+                        <p class="image-caption">La Clé</p>
+                      </div>
+                    </div>
+
+                    <h3>Design et interface</h3>
+                    <ul>
+                      <li>
+                        Style inspiré de la Gameboy Color, reproduit en CSS et
+                        adapté au ratio 16/9.
+                      </li>
+                      <li>
+                        Layers et z-index organisés pour assurer la cohérence
+                        graphique.
+                      </li>
+                      <li>
+                        Menus et overlays générés dynamiquement via JavaScript.
+                      </li>
+                    </ul>
+
+                    <!-- Galerie d'images -->
+                    <div class="image-gallery">
+                      <img
+                        src="img/gameboy-color.avif"
+                        alt="Design Gameboy"
+                        class="gallery-image"
+                      />
+                      <p class="image-caption">
+                        Interface style Gameboy Color intégrée en CSS
+                      </p>
+                    </div>
+                  </section>
+
+                  <section>
+                    <h2>Création de la map et des ressources</h2>
+                    <ul>
+                      <li>
+                        Map et collisions réalisées avec Tiled, export JSON pour
+                        le code.
+                      </li>
+                      <li>
+                        Visuels et sprites créés ou modifiés avec Piskel, GIMP,
+                        Paint, et ressources libres de droits sur Pixabay,
+                        itch.io, OpenGameArt.org et Freepik.
+                      </li>
+                      <li>
+                        Audio : musiques et sons adaptés à l'ambiance RPG,
+                        intégrés avec Howler.js.
+                      </li>
+                      <li>
+                        Outils et workflow : VS Code pour le code, IA (Claude,
+                        ChatGPT, Copilot) pour l'aide et l'optimisation, MDN et
+                        cours de formation pour les références.
+                      </li>
+                    </ul>
+
+                    <!-- Galerie d'images -->
+                    <div class="image-gallery">
+                      <img
+                        src="img/piskel.png"
+                        alt="Éditeur Piskel"
+                        class="gallery-image"
+                      />
+                      <p class="image-caption">
+                        Création de sprites pixel art avec Piskel
+                      </p>
+                    </div>
+                  </section>
+
+                  <section>
+                    <h2>Ce que ce projet m'a apporté</h2>
+                    <ul>
+                      <li>
+                        Structurer un projet proprement et améliorer un projet
+                        existant.
+                      </li>
+                      <li>Chercher des solutions de manière autonome.</li>
+                      <li>
+                        Expérimenter différentes approches avant de choisir la
+                        meilleure.
+                      </li>
+                      <li>
+                        Persévérer et accepter de ne pas tout comprendre
+                        immédiatement.
+                      </li>
+                    </ul>
+                  </section>
+
+                  <section>
+                    <h2>Version 1 → Version 2</h2>
+
+                    <h3>Version 1</h3>
+                    <ul>
+                      <li>Pas de PNJ ni d'interactions.</li>
+                      <li>Un coffre mais pas de sons ni d'inventaire.</li>
+                      <li>
+                        Interface non responsive, code dans un seul fichier.
+                      </li>
+                      <li>Menu et overlays gérés en CSS.</li>
+                      <li>
+                        Pas de design type Gameboy, fonctionnalités limitées.
+                      </li>
+                    </ul>
+
+                    <h3>Version 2</h3>
+                    <ul>
+                      <li>Ajout de PNJ et d'interactions.</li>
+                      <li>
+                        Sons pour coffres et objets, cohérents selon l'état du
+                        jeu.
+                      </li>
+                      <li>
+                        Full responsive, approche mobile first pour tous
+                        supports.
+                      </li>
+                      <li>
+                        Design Gameboy intégré, overlays et menus générés en
+                        JavaScript.
+                      </li>
+                      <li>
+                        Modules ES6 pour un code structuré et maintenable.
+                      </li>
+                    </ul>
+
+                    <!-- Galerie d'images - Comparaison V1 vs V2 -->
+                    <div class="image-comparison">
+                      <div class="comparison-item">
+                        <img
+                          src="img/mobile-V1.png"
+                          alt="Version 1"
+                          class="gallery-image"
+                        />
+                        <p class="image-caption">
+                          Version 1 - Interface basique
+                        </p>
+                      </div>
+                      <div class="comparison-item">
+                        <img
+                          src="img/mobile-v2.png"
+                          alt="Version 2"
+                          class="gallery-image"
+                        />
+                        <p class="image-caption">
+                          Version 2 - Design Gameboy & responsive
+                        </p>
+                      </div>
+                    </div>
+                  </section>
+
+                  <section>
+                    <h2>Vers une Version 3</h2>
+                    <ul>
+                      <li>Système de combat ou mini-jeux.</li>
+                      <li>Ajout de nouveaux PNJ et dialogues.</li>
+                      <li>
+                        Agrandissement des maps et création de nouvelles pièces
+                        interactives.
+                      </li>
+                      <li>
+                        Plus d'interactions avec les éléments et PNJ existants.
+                      </li>
+                      <li>
+                        Utilisation éventuelle d'un framework ou moteur de jeu
+                        (Unity / Unreal Engine).
+                      </li>
+                    </ul>
+                  </section>
+
+                  <section>
+                    <h2>Conclusion</h2>
+                    <p>
+                      Ce projet reflète mon niveau actuel, ma créativité et ma
+                      capacité à apprendre de manière autonome. Il montre ma
+                      progression, ma curiosité technique et ma motivation à
+                      continuer à évoluer dans le développement web.
+                    </p>
+                  </section>
+                </div>
+
+                <div class="makingof-footer">
+                  <button id="makingof-close-btn" class="makingof-btn">
+                    Retour
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="containerLogoNintendo">
+        <div class="logoNintendoBas">Ninvento</div>
+      </div>
+
+      <div class="hautParleurs">
+        <div class="grilleHautParleur">
+          <!-- Ligne 1 : 6 trous -->
+          <div class="ligneHautParleur">
+            <div class="trouHautParleur"></div>
+            <div class="trouHautParleur enfonce"></div>
+            <div class="trouHautParleur"></div>
+            <div class="trouHautParleur enfonce"></div>
+            <div class="trouHautParleur"></div>
+            <div class="trouHautParleur enfonce"></div>
+          </div>
+
+          <!-- Ligne 2 : 8 trous -->
+          <div class="ligneHautParleur">
+            <div class="trouHautParleur enfonce"></div>
+            <div class="trouHautParleur"></div>
+            <div class="trouHautParleur enfonce"></div>
+            <div class="trouHautParleur"></div>
+            <div class="trouHautParleur enfonce"></div>
+            <div class="trouHautParleur"></div>
+            <div class="trouHautParleur enfonce"></div>
+            <div class="trouHautParleur"></div>
+          </div>
+
+          <!-- Ligne 3 : 8 trous -->
+          <div class="ligneHautParleur">
+            <div class="trouHautParleur"></div>
+            <div class="trouHautParleur enfonce"></div>
+            <div class="trouHautParleur"></div>
+            <div class="trouHautParleur enfonce"></div>
+            <div class="trouHautParleur"></div>
+            <div class="trouHautParleur enfonce"></div>
+            <div class="trouHautParleur"></div>
+            <div class="trouHautParleur enfonce"></div>
+          </div>
+
+          <!-- Ligne 4 : 8 trous -->
+          <div class="ligneHautParleur">
+            <div class="trouHautParleur enfonce"></div>
+            <div class="trouHautParleur"></div>
+            <div class="trouHautParleur enfonce"></div>
+            <div class="trouHautParleur"></div>
+            <div class="trouHautParleur enfonce"></div>
+            <div class="trouHautParleur"></div>
+            <div class="trouHautParleur enfonce"></div>
+            <div class="trouHautParleur"></div>
+          </div>
+
+          <!-- Ligne 5 : 8 trous -->
+          <div class="ligneHautParleur">
+            <div class="trouHautParleur"></div>
+            <div class="trouHautParleur enfonce"></div>
+            <div class="trouHautParleur"></div>
+            <div class="trouHautParleur enfonce"></div>
+            <div class="trouHautParleur"></div>
+            <div class="trouHautParleur enfonce"></div>
+            <div class="trouHautParleur"></div>
+            <div class="trouHautParleur enfonce"></div>
+          </div>
+
+          <!-- Ligne 6 : 8 trous -->
+          <div class="ligneHautParleur">
+            <div class="trouHautParleur enfonce"></div>
+            <div class="trouHautParleur"></div>
+            <div class="trouHautParleur enfonce"></div>
+            <div class="trouHautParleur"></div>
+            <div class="trouHautParleur enfonce"></div>
+            <div class="trouHautParleur"></div>
+            <div class="trouHautParleur enfonce"></div>
+            <div class="trouHautParleur"></div>
+          </div>
+
+          <!-- Ligne 7 : 8 trous -->
+          <div class="ligneHautParleur">
+            <div class="trouHautParleur"></div>
+            <div class="trouHautParleur enfonce"></div>
+            <div class="trouHautParleur"></div>
+            <div class="trouHautParleur enfonce"></div>
+            <div class="trouHautParleur"></div>
+            <div class="trouHautParleur enfonce"></div>
+            <div class="trouHautParleur"></div>
+            <div class="trouHautParleur enfonce"></div>
+          </div>
+
+          <!-- Ligne 8 : 6 trous -->
+          <div class="ligneHautParleur">
+            <div class="trouHautParleur enfonce"></div>
+            <div class="trouHautParleur"></div>
+            <div class="trouHautParleur enfonce"></div>
+            <div class="trouHautParleur"></div>
+            <div class="trouHautParleur enfonce"></div>
+            <div class="trouHautParleur"></div>
+          </div>
+        </div>
+      </div>
+      <div class="controls-zone">
+        <div class="dpad">
+          <button class="dpad-btn dpad-up" data-direction="up"></button>
+          <button class="dpad-btn dpad-down" data-direction="down"></button>
+          <button class="dpad-btn dpad-left" data-direction="left"></button>
+          <button class="dpad-btn dpad-right" data-direction="right"></button>
+          <div class="dpad-center"></div>
+        </div>
+
+        <div class="boutonsAB">
+          <button class="boutonCirculaire" data-bouton="b">B</button>
+          <button class="boutonCirculaire" data-bouton="a">A</button>
+        </div>
+      </div>
+
+      <div class="zoneSelectStart">
+        <div>
+          <button class="boutonPetit" data-bouton="select"></button>
+          <div class="labelBouton">Select</div>
+        </div>
+        <div>
+          <button class="boutonPetit" data-bouton="start"></button>
+          <div class="labelBouton">Start</div>
+        </div>
+      </div>
+    </div>
+    <!-- Fin de la Gameboy  -->
+
+    <!-- Le js -->
+    <script type="module" src="main.js"></script>
+  </body>
+</html>
